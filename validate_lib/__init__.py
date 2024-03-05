@@ -198,12 +198,57 @@ def check_comment_rules():
     check_string_in_file('docs/README.md', '# License')
 
 
+def check_whitespace_rules(filename):
+    with open(filename, 'r') as file:
+        content = file.read()
+
+    # Check for spaces after keywords
+    keywords = ['if', 'while', 'for', 'switch', 'return']
+    for keyword in keywords:
+        if re.search(r'\b' + keyword + r'\b[^\s]', content):
+            print(f'Keyword "{keyword}" not followed by space in file: {filename}')
+
+    # Check for spaces around assignment operators
+    operators = ['=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '!=']
+    for operator in operators:
+        if re.search(r'\b[^s]' + operator + r'\b', content) or re.search(r'\b' + operator + r'\b[^s]', content):
+            print(f'Operator "{operator}" not surrounded by spaces in file: {filename}')
+
+    # Check for spaces around binary operators
+    operators = ['+', '-', '*', '/', '%', '<', '<=', '>', '>=', '==', '!=', '<<', '>>', '&', '|', '^', '&&', '||']
+    for operator in operators:
+        if re.search(r'\b[^s]' + operator + r'\b', content) or re.search(r'\b' + operator + r'\b[^s]', content):
+            print(f'Operator "{operator}" not surrounded by spaces in file: {filename}')
+
+    # Check for spaces after unary operators
+    operators = ['+', '-', '++', '--', '!', '~']
+    for operator in operators:
+        if re.search(r'\b' + operator + r'\b\s', content):
+            print(f'Unary operator "{operator}" followed by space in file: {filename}')
+
+    # Check for spaces around ternary operator
+    if re.search(r'\b[^s]?' + r'\b', content) or re.search(r'\b?' + r'\b[^s]', content):
+        print(f'Ternary operator "?" not surrounded by spaces in file: {filename}')
+    if re.search(r'\b[^s]:' + r'\b', content) or re.search(r'\b:' + r'\b[^s]', content):
+        print(f'Ternary operator ":" not surrounded by spaces in file: {filename}')
+
+def check_whitespace_rules():
+    # Check all .ino, .h, and .cpp files
+    for filename in glob.glob('**/*.ino', recursive=True):
+        whitespace_rules(filename)
+    for filename in glob.glob('**/*.h', recursive=True):
+        whitespace_rules(filename)
+    for filename in glob.glob('**/*.cpp', recursive=True):
+        whitespace_rules(filename)
+
 def main():
     parser = argparse.ArgumentParser(description='Select check.')
     parser.add_argument('--general-rules', dest='check_general_rules', action='store_true',
-                    help='run the hello_world function')
+                    help='Check General rules')
     parser.add_argument('--comment-rules', dest='check_comment_rules', action='store_true',
-                    help='run the hello_world function')
+                    help='Check Comment rueles')
+    parser.add_argument('--check-whitespace-rules', dest='check_whitespace_rules', action='store_true',
+                    help='Check Whitespace rules')
     
     args = parser.parse_args()
 
@@ -211,6 +256,8 @@ def main():
         check_general_rules()
     elif args.check_comment_rules:
         check_comment_rules()
+    elif args.check_whitespace_rules:
+        check_whitespace_rules()    
 
 
 if __name__ == "__main__":
